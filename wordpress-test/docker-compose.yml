@@ -1,0 +1,55 @@
+version: '3.8'  # 建议升级版本
+
+services:
+  wordpress:
+    image: wordpress:latest
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wp_user
+      WORDPRESS_DB_PASSWORD: Str0ngP@ss
+      WORDPRESS_DB_NAME: exampledb
+      PHP_MEMORY_LIMIT: 256M
+      UPLOAD_MAX_FILESIZE: 64M
+    volumes:
+      - wordpress:/var/www/html
+    depends_on:
+      - db
+    networks:
+      - frontend
+      - backend
+
+  db:
+    image: mysql:5.7
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: exampledb
+      MYSQL_USER: wp_user
+      MYSQL_PASSWORD: Str0ngP@ss
+      MYSQL_ROOT_PASSWORD: R00tP@ss123
+      TZ: Asia/Shanghai
+    command: [
+      '--character-set-server=utf8mb4',
+      '--collation-server=utf8mb4_unicode_ci',
+      '--max_connections=200'
+    ]
+    volumes:
+      - db:/var/lib/mysql
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  wordpress:
+  db:
+
+networks:
+  frontend:
+  backend:
+    internal: true

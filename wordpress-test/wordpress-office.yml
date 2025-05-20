@@ -1,0 +1,27 @@
+version: "3.8"          # 使用 Docker Compose 3.8 版本语法
+services:               # 定义服务列表
+  wordpress:            # 服务1：WordPress
+    image: wordpress    # 使用官方 WordPress 镜像
+    ports:
+      - "8080:80"       # 端口映射：宿主机8080 → 容器80
+    environment:        # 环境变量（配置 WordPress）
+      WORDPRESS_DB_HOST: db      # 数据库主机名（指向下方 `db` 服务）
+      WORDPRESS_DB_USER: wpuser  # 数据库用户名
+      WORDPRESS_DB_PASSWORD: wppass  # 数据库密码
+      WORDPRESS_DB_NAME: wpdb    # 数据库名
+    volumes:
+      - wordpress_data:/var/www/html  # 持久化 WordPress 数据
+
+  db:                   # 服务2：MySQL 数据库
+    image: mysql:8.0    # 使用 MySQL 8.0 镜像
+    environment:        # 数据库配置
+      MYSQL_ROOT_PASSWORD: rootpass  # root 密码
+      MYSQL_DATABASE: wpdb           # 创建初始数据库
+      MYSQL_USER: wpuser             # 创建普通用户
+      MYSQL_PASSWORD: wppass         # 普通用户密码
+    volumes:
+      - db_data:/var/lib/mysql  # 持久化 MySQL 数据
+
+volumes:                # 声明持久化卷
+  wordpress_data:       # WordPress 数据卷（插件/主题/上传文件）
+  db_data:              # MySQL 数据卷（数据库文件）
